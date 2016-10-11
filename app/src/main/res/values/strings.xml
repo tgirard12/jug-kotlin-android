@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Jug Kotlin Android</string>
+    <string name="owner">"by : %s"</string>
+</resources>
