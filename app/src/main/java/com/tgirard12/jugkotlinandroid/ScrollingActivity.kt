@@ -20,43 +20,30 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class ScrollingActivity : AppCompatActivity() {
 
-    var gson = Gson()
-    var retrofit: Retrofit = Retrofit
+    val gson = Gson()
+    val retrofit: Retrofit = Retrofit
             .Builder()
             .baseUrl("https://api.github.com")
             .addConverterFactory(GsonConverterFactory.create(gson)).build()
-    var githubService: GithubService = retrofit.create(GithubService::class.java)
-    var picasso: Picasso? = null
+    val githubService: GithubService = retrofit.create(GithubService::class.java)
+    val picasso: Picasso by lazy { Picasso.with(this) }
 
-    var toolbar: Toolbar? = null
-    var fab: FloatingActionButton? = null
-    var name: TextView? = null
-    var fullName: TextView? = null
-    var htmlUrl: TextView? = null
-    var description: TextView? = null
-    var owner: TextView? = null
-    var owerAvatar: ImageView? = null
+    val toolbar: Toolbar by lazy { findViewById(R.id.toolbar) as Toolbar }
+    val fab: FloatingActionButton by lazy { findViewById(R.id.fab) as FloatingActionButton }
+    val name: TextView by lazy { findViewById(R.id.name) as TextView }
+    val fullName: TextView by lazy { findViewById(R.id.fullName) as TextView }
+    val htmlUrl: TextView by lazy { findViewById(R.id.htmlUrl) as TextView }
+    val description: TextView by lazy { findViewById(R.id.description) as TextView }
+    val owner: TextView by lazy { findViewById(R.id.owner) as TextView }
+    val owerAvatar: ImageView by lazy { findViewById(R.id.owerAvatar) as ImageView }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scrolling)
 
         //
-        picasso = Picasso.with(this)
-
-        //
-        toolbar = findViewById(R.id.toolbar) as Toolbar
-        fab = findViewById(R.id.fab) as FloatingActionButton
-        name = findViewById(R.id.name) as TextView
-        fullName = findViewById(R.id.fullName) as TextView
-        htmlUrl = findViewById(R.id.htmlUrl) as TextView
-        description = findViewById(R.id.description) as TextView
-        owner = findViewById(R.id.owner) as TextView
-        owerAvatar = findViewById(R.id.owerAvatar) as ImageView
-
-        //
         val vectorDrawableCompat = VectorDrawableCompat.create(resources, R.drawable.ic_github, theme)
-        fab?.setImageDrawable(vectorDrawableCompat)
+        fab.setImageDrawable(vectorDrawableCompat)
 
         setSupportActionBar(toolbar)
 
@@ -69,15 +56,15 @@ class ScrollingActivity : AppCompatActivity() {
             val search = response.body()
             val searchItem: SearchItem? = search.items!![0]
 
-            name?.text = searchItem!!.name
-            fullName?.text = searchItem!!.full_name
-            htmlUrl?.text = searchItem!!.html_url
-            description?.text = searchItem!!.description
+            name.text = searchItem!!.name
+            fullName.text = searchItem!!.full_name
+            htmlUrl.text = searchItem!!.html_url
+            description.text = searchItem!!.description
 
-            owner?.text = getString(R.string.owner, searchItem!!.owner.login)
+            owner.text = getString(R.string.owner, searchItem!!.owner.login)
 
             //
-            picasso?.load(searchItem!!.owner.avatar_url)
+            picasso.load(searchItem!!.owner.avatar_url)
                     ?.into(owerAvatar)
 
             fab?.setOnClickListener {
