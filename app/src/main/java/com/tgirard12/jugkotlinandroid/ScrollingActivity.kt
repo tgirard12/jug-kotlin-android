@@ -54,27 +54,22 @@ class ScrollingActivity : AppCompatActivity() {
     private val searchCallback = object : Callback<Search> {
         override fun onResponse(call: Call<Search>, response: Response<Search>) {
             val search = response.body()
-            val searchItem: SearchItem? = search.items!![0]
+            val searchItem = search.items?.firstOrNull()
 
-            name.text = searchItem!!.name
-            fullName.text = searchItem!!.full_name
-            htmlUrl.text = searchItem!!.html_url
-            description.text = searchItem!!.description
+            searchItem?.let {
+                name.text = it.name
+                fullName.text = it.full_name
+                htmlUrl.text = it.html_url
+                description.text = it.description
 
-            owner.text = getString(R.string.owner, searchItem!!.owner.login)
+                owner.text = getString(R.string.owner, it.owner.login)
 
-            //
-            picasso.load(searchItem!!.owner.avatar_url)
-                    ?.into(owerAvatar)
+                picasso.load(it.owner.avatar_url)?.into(owerAvatar)
 
-            fab?.setOnClickListener {
-                //
-                if (searchItem != null) {
-                    if (searchItem.html_url != null) {
-                        val webpage = Uri.parse(searchItem!!.html_url)
-                        val intent = Intent(Intent.ACTION_VIEW, webpage)
-                        startActivity(intent)
-                    }
+                fab.setOnClickListener { fab ->
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it.html_url)).apply {
+                        this.putExtra("toto", true)
+                    })
                 }
             }
         }
