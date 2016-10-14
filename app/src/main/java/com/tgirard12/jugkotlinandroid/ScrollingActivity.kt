@@ -1,10 +1,8 @@
 package com.tgirard12.jugkotlinandroid
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
-import android.support.graphics.drawable.VectorDrawableCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
@@ -28,22 +26,20 @@ class ScrollingActivity : AppCompatActivity() {
     val githubService: GithubService = retrofit.create(GithubService::class.java)
     val picasso: Picasso by lazy { Picasso.with(this) }
 
-    val toolbar: Toolbar by lazy { findViewById(R.id.toolbar) as Toolbar }
-    val fab: FloatingActionButton by lazy { findViewById(R.id.fab) as FloatingActionButton }
-    val name: TextView by lazy { findViewById(R.id.name) as TextView }
-    val fullName: TextView by lazy { findViewById(R.id.fullName) as TextView }
-    val htmlUrl: TextView by lazy { findViewById(R.id.htmlUrl) as TextView }
-    val description: TextView by lazy { findViewById(R.id.description) as TextView }
-    val owner: TextView by lazy { findViewById(R.id.owner) as TextView }
-    val owerAvatar: ImageView by lazy { findViewById(R.id.owerAvatar) as ImageView }
+    val toolbar: Toolbar by bindView(R.id.toolbar)
+    val fab by bindView<FloatingActionButton>(R.id.fab)
+    val name: TextView by bindView(R.id.name)
+    val fullName: TextView by bindView(R.id.fullName)
+    val htmlUrl: TextView by bindView(R.id.htmlUrl)
+    val description: TextView by bindView(R.id.description)
+    val owner: TextView by bindView(R.id.owner)
+    val owerAvatar: ImageView by bindView(R.id.owerAvatar)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scrolling)
 
-        //
-        val vectorDrawableCompat = VectorDrawableCompat.create(resources, R.drawable.ic_github, theme)
-        fab.setImageDrawable(vectorDrawableCompat)
+        fab.setImageDrawable(createVector(R.drawable.ic_github))
 
         setSupportActionBar(toolbar)
 
@@ -51,25 +47,27 @@ class ScrollingActivity : AppCompatActivity() {
         githubService.githubSearch("kotlin").enqueue(searchCallback)
     }
 
-    private val searchCallback = object : Callback<Search> {
+    val searchCallback = object : Callback<Search> {
         override fun onResponse(call: Call<Search>, response: Response<Search>) {
             val search = response.body()
-            val searchItem = search.items?.firstOrNull()
+            search.items?.firstOrNull()?.let { searchItem ->
 
-            searchItem?.let {
-                name.text = it.name
-                fullName.text = it.full_name
-                htmlUrl.text = it.html_url
-                description.text = it.description
+                searchItem.name printIn name
+                searchItem.full_name printIn fullName
+                searchItem.html_url printIn htmlUrl
+                searchItem.description printIn description
 
-                owner.text = getString(R.string.owner, it.owner.login)
+                getString(R.string.owner, searchItem.owner.login) printIn owner
 
-                picasso.load(it.owner.avatar_url)?.into(owerAvatar)
+                picasso.load(searchItem.owner.avatar_url)?.into(owerAvatar)
 
-                fab.setOnClickListener { fab ->
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it.html_url)).apply {
-                        this.putExtra("toto", true)
-                    })
+                fab.setOnClickListener {
+                    startActivity {
+                        intent {
+                            action { Intent.ACTION_VIEW }
+                            url { searchItem.html_url }
+                        }
+                    }
                 }
             }
         }
